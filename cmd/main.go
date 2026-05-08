@@ -299,10 +299,21 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 	}
 	defer leaderRows.Close()
 
+	type LeaderRow struct {
+		Index    int
+		Username string
+		Score    int
+	}
+
 	var leaders []LeaderRow
+	i := 1
+
 	for leaderRows.Next() {
 		var row LeaderRow
-		if err := leaderRows.Scan(&row.Username, &row.Score); err == nil {
+
+		if err = leaderRows.Scan(&row.Username, &row.Score); err == nil {
+			row.Index = i
+			i++
 			leaders = append(leaders, row)
 		}
 	}

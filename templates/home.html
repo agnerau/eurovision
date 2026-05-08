@@ -22,11 +22,11 @@
 </header>
 
 <main class="container">
-  <h2>Hello, {{.Username}}</h2>
+  <h2>Good evening, {{.Username}}</h2>
 
   <section class="panel">
-    <h2>Podium / leaderboard</h2>
-    <p class="muted">Score = number of exact country + place matches.</p>
+    <h2>Leaderboard</h2>
+    <p class="muted">By the most correctly guessed places</p>
 
     <table>
       <thead>
@@ -39,7 +39,7 @@
       <tbody>
       {{range $i, $row := .Leaders}}
       <tr>
-        <td>{{$i}}</td>
+        <td>{{.Index}}</td>
         <td>{{$row.Username}}</td>
         <td>{{$row.Score}}</td>
       </tr>
@@ -53,7 +53,7 @@
   </section>
 
   <section class="panel">
-    <h2>Everyone's predictions</h2>
+    <h2>Other's predictions</h2>
 
     <div class="prediction-cards">
       {{range .PredictionUsers}}
