@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{{.Title}} - Eurovision</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>{{.Title}}</h1>
+  <nav>
+    <a href="/home">Home</a>
+    <a href="/logout">Logout</a>
+  </nav>
+</header>
+
+<main class="container">
+  <section class="panel">
+    <p>
+      Drag countries into the places you want. You do not need to fill every place.
+      For example, if there are 25 countries, you can submit only your top 5.
+    </p>
+
+
+
+    <div class="prediction-layout">
+      <div>
+        <h2>Countries</h2>
+        <div id="countries" class="country-list"></div>
+      </div>
+
+      <div>
+        <h2>Your ranking</h2>
+        <div id="slots" class="slots"></div>
+      </div>
+    </div>
+
+    <button id="submitBtn" class="submit-btn">Submit prediction</button>
+    <div id="message"></div>
+  </section>
+</main>
+
+<script>
+  window.EDIT_MODE = {{if .Edit}}true{{else}}false{{end}};
+</script>
+<script src="/static/prediction.js"></script>
+</body>
+</html>
