@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Eurovision Dashboard</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>Eurovision Predictions</h1>
+  <nav>
+    {{if not .PredictionsLocked}}
+      {{if .HasPrediction}}
+      <a href="/prediction/edit">Edit prediction</a>
+      {{else}}
+      <a class="plus" href="/prediction/new">＋ New prediction</a>
+      {{end}}
+    {{end}}
+
+    <a href="/logout">Logout</a>
+  </nav>
+</header>
+
+<main class="container">
+  <h2>Hello, {{.Username}}</h2>
+
+  <section class="panel">
+    <h2>Podium / leaderboard</h2>
+    <p class="muted">Score = number of exact country + place matches.</p>
+
+    <table>
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>User</th>
+        <th>Correct places</th>
+      </tr>
+      </thead>
+      <tbody>
+      {{range $i, $row := .Leaders}}
+      <tr>
+        <td>{{$i}}</td>
+        <td>{{$row.Username}}</td>
+        <td>{{$row.Score}}</td>
+      </tr>
+      {{else}}
+      <tr>
+        <td colspan="3">No users yet.</td>
+      </tr>
+      {{end}}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h2>Everyone's predictions</h2>
+
+    <table>
+      <thead>
+      <tr>
+        <th>User</th>
+        <th>Place</th>
+        <th>Country</th>
+      </tr>
+      </thead>
+      <tbody>
+      {{range .Picks}}
+      <tr>
+        <td>{{.Username}}</td>
+        <td>{{.Place}}</td>
+        <td>{{.Country}}</td>
+      </tr>
+      {{else}}
+      <tr>
+        <td colspan="3">No predictions submitted yet.</td>
+      </tr>
+      {{end}}
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>
