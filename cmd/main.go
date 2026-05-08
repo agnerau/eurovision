@@ -81,6 +81,7 @@ func main() {
 	mux.HandleFunc("/home", app.requireAuth(app.home))
 	mux.HandleFunc("/prediction/new", app.requireAuth(app.predictionNew))
 	mux.HandleFunc("/prediction/edit", app.requireAuth(app.predictionEdit))
+	mux.HandleFunc("/predictions/", app.userPredictions)
 
 	mux.HandleFunc("/api/countries", app.apiCountries)
 	mux.HandleFunc("/api/my-stats", app.requireAuth(app.apiMyStats))
@@ -110,6 +111,7 @@ func loadTemplates() map[string]*template.Template {
 		"register.html",
 		"home.html",
 		"prediction.html",
+		"user_predictions.html",
 	}
 
 	tpls := make(map[string]*template.Template)
@@ -305,33 +307,75 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	pickRows, err := a.db.Query(`
-		SELECT u.username, c.name, s.place
+	type PredictionUser struct {
+		Username string
+	}
+
+	rows, err := a.db.Query(`
+		SELECT DISTINCT u.username
 		FROM stats s
 		JOIN users u ON u.id = s.user_id
-		JOIN countries c ON c.id = s.country_id
-		ORDER BY u.username ASC, s.place ASC
-	`)
+		WHERE u.id <> $1
+		ORDER BY u.username ASC
+	`, userID)
+
 	if err != nil {
-		http.Error(w, "stats error", http.StatusInternalServerError)
+		http.Error(w, "database error", http.StatusInternalServerError)
 		return
 	}
-	defer pickRows.Close()
 
-	var picks []PickRow
-	for pickRows.Next() {
-		var row PickRow
-		if err := pickRows.Scan(&row.Username, &row.Country, &row.Place); err == nil {
-			picks = append(picks, row)
+	var predictionUsers []PredictionUser
+
+	for rows.Next() {
+		var u PredictionUser
+
+		if err := rows.Scan(&u.Username); err == nil {
+			predictionUsers = append(predictionUsers, u)
 		}
 	}
 
 	a.render(w, "home.html", map[string]any{
 		"Username":          username,
 		"Leaders":           leaders,
-		"Picks":             picks,
+		"PredictionUsers":   predictionUsers,
 		"HasPrediction":     hasPrediction,
 		"PredictionsLocked": locked,
+	})
+}
+
+func (a *App) userPredictions(w http.ResponseWriter, r *http.Request) {
+	username := strings.TrimPrefix(r.URL.Path, "/predictions/")
+
+	rows, err := a.db.Query(`
+		SELECT s.place, c.name
+		FROM stats s
+		JOIN users u ON u.id = s.user_id
+		JOIN countries c ON c.id = s.country_id
+		WHERE u.username = $1
+		ORDER BY s.place ASC
+	`, username)
+
+	if err != nil {
+		http.Error(w, "database error", http.StatusInternalServerError)
+		return
+	}
+
+	defer rows.Close()
+
+	var picks []PickRow
+
+	for rows.Next() {
+		var p PickRow
+
+		rows.Scan(&p.Place, &p.Country)
+
+		picks = append(picks, p)
+	}
+
+	a.render(w, "user_predictions.html", map[string]any{
+		"Username": username,
+		"Picks":    picks,
+		"Title":    username + "'s predictions",
 	})
 }
 

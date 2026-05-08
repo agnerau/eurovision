@@ -55,28 +55,15 @@
   <section class="panel">
     <h2>Everyone's predictions</h2>
 
-    <table>
-      <thead>
-      <tr>
-        <th>User</th>
-        <th>Place</th>
-        <th>Country</th>
-      </tr>
-      </thead>
-      <tbody>
-      {{range .Picks}}
-      <tr>
-        <td>{{.Username}}</td>
-        <td>{{.Place}}</td>
-        <td>{{.Country}}</td>
-      </tr>
+    <div class="prediction-cards">
+      {{range .PredictionUsers}}
+      <a class="prediction-card" href="/predictions/{{.Username}}">
+        {{.Username}}
+      </a>
       {{else}}
-      <tr>
-        <td colspan="3">No predictions submitted yet.</td>
-      </tr>
+      <p>No predictions submitted yet.</p>
       {{end}}
-      </tbody>
-    </table>
+    </div>
   </section>
 </main>
 </body>

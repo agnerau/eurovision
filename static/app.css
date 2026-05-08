@@ -176,6 +176,79 @@ td {
     margin-top: 24px;
 }
 
+.prediction-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.prediction-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+    border-radius: 16px;
+
+    background: #1f1f1f;
+    color: white;
+    text-decoration: none;
+
+    font-weight: 600;
+    font-size: 18px;
+
+    transition: 0.2s ease;
+}
+
+.prediction-card:hover {
+    transform: translateY(-2px);
+    background: #2a2a2a;
+}
+
+.centered-predictions {
+    max-width: 600px;
+    margin: 40px auto;
+    text-align: center;
+}
+
+.centered-predictions h1 {
+    margin-bottom: 32px;
+}
+
+.prediction-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.prediction-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 18px 24px;
+
+    background: #1f1f1f;
+    border-radius: 14px;
+
+    font-size: 18px;
+    font-weight: 500;
+
+    transition: 0.2s ease;
+    color: white;
+}
+
+.prediction-row:hover {
+    transform: translateY(-2px);
+    background: #2a2a2a;
+}
+
+.prediction-row span:first-child {
+    font-weight: 700;
+    color: white;
+}
+
 
 @media (max-width: 800px) {
     .prediction-layout {

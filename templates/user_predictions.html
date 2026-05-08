@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{{.Title}} - Eurovision</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>{{.Title}}</h1>
+  <nav>
+    <a href="/home">Home</a>
+    <a href="/logout">Logout</a>
+  </nav>
+</header>
+
+<section class="panel centered-predictions">
+  <h1>{{.Username}}'s predictions</h1>
+
+  <div class="prediction-list">
+    {{range .Picks}}
+    <div class="prediction-row">
+      <span>#{{.Place}}</span>
+      <span>{{.Country}}</span>
+    </div>
+    {{end}}
+  </div>
+</section>
+</body>
+</html>
