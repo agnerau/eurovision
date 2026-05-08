@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Register - Eurovision</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<main class="auth-card">
+    <h1>Eurovision Predictions</h1>
+    <h2>Create account</h2>
+
+    {{if .Error}}
+    <p class="error">{{.Error}}</p>
+    {{end}}
+
+    <form method="post" action="/register">
+        <label>Username</label>
+        <input name="username" required>
+
+        <label>Password</label>
+        <input name="password" type="password" required>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <p>Already registered? <a href="/login">Login</a></p>
+</main>
+</body>
+</html>
