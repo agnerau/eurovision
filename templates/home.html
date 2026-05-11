@@ -11,11 +11,13 @@
   <h1>✨ Eurovision {{.Year}} Predictions</h1>
   <nav>
     {{if not .PredictionsLocked}}
-    {{if .HasPrediction}}
-    <a href="/prediction/edit">Edit prediction</a>
+      {{if .HasPrediction}}
+        <a href="/prediction/edit">Edit prediction</a>
+      {{else}}
+        <a class="plus" href="/prediction/new">＋ New prediction</a>
+      {{end}}
     {{else}}
-    <a class="plus" href="/prediction/new">＋ New prediction</a>
-    {{end}}
+      <a href="/predictions/{{.Username}}">My results</a>
     {{end}}
 
     <a href="/logout">Logout</a>

@@ -164,6 +164,15 @@ button:hover,
     margin: 20px;
 }
 
+.correct-prediction {
+    background: linear-gradient(135deg, rgba(76, 201, 240, 0.18), rgba(123, 44, 255, 0.18));
+    border: 1px solid rgba(76, 201, 240, 0.45);
+
+    box-shadow: 0 0 14px rgba(76, 201, 240, 0.25);
+
+    transform: scale(1.01);
+}
+
 /* TABLE */
 table {
     width: 100%;

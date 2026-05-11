@@ -46,9 +46,11 @@ type LeaderRow struct {
 }
 
 type PickRow struct {
-	Username string
-	Country  string
-	Place    int
+	CountryID int
+	Username  string
+	Country   string
+	Place     int
+	Correct   bool
 }
 
 func main() {
@@ -263,13 +265,7 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var locked bool
-
-	err = a.db.QueryRow(`
-		SELECT predictions_locked
-		FROM app_settings
-		WHERE id = TRUE
-	`).Scan(&locked)
+	locked, err := a.getLocked()
 
 	if err != nil {
 		http.Error(w, "settings error", http.StatusInternalServerError)
@@ -293,7 +289,6 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 		ORDER BY score DESC, u.username ASC
 	`)
 	if err != nil {
-		println(err.Error())
 		http.Error(w, "leaderboard error", http.StatusInternalServerError)
 		return
 	}
@@ -354,22 +349,75 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 		"Year":              time.Now().Year(),
 	})
 }
+func (a *App) getLocked() (bool, error) {
+	var locked bool
+
+	err := a.db.QueryRow(`
+		SELECT predictions_locked
+		FROM app_settings
+		WHERE id = TRUE
+	`).Scan(&locked)
+
+	if err != nil {
+		return false, err
+	}
+
+	return locked, nil
+}
 
 func (a *App) userPredictions(w http.ResponseWriter, r *http.Request) {
 	username := strings.TrimPrefix(r.URL.Path, "/predictions/")
 
+	locked, err := a.getLocked()
+	if err != nil {
+		http.Error(w, "database error", http.StatusInternalServerError)
+		return
+	}
+
+	picks, err := a.getUserPredictions(username)
+	if err != nil {
+		http.Error(w, "database error", http.StatusInternalServerError)
+		return
+	}
+	for _, pick := range picks {
+		println(pick.Country)
+		println(pick.CountryID)
+		println(pick.Place)
+		println(pick.Correct)
+	}
+
+	println(locked)
+
+	a.render(w, "user_predictions.html", map[string]any{
+		"Username":          username,
+		"Picks":             picks,
+		"PredictionsLocked": locked,
+		"Title":             username + "'s predictions",
+		"Year":              time.Now().Year(),
+	})
+}
+
+func (a *App) getUserPredictions(username string) ([]PickRow, error) {
 	rows, err := a.db.Query(`
-		SELECT s.place, c.name
+		SELECT
+			c.id,
+			s.place,
+			c.name,
+			(w.country_id IS NOT NULL) AS correct
 		FROM stats s
 		JOIN users u ON u.id = s.user_id
 		JOIN countries c ON c.id = s.country_id
+
+		LEFT JOIN winner_countries w
+			ON w.country_id = s.country_id
+			AND w.place = s.place
+
 		WHERE u.username = $1
 		ORDER BY s.place ASC
 	`, username)
 
 	if err != nil {
-		http.Error(w, "database error", http.StatusInternalServerError)
-		return
+		return nil, err
 	}
 
 	defer rows.Close()
@@ -379,17 +427,21 @@ func (a *App) userPredictions(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var p PickRow
 
-		rows.Scan(&p.Place, &p.Country)
+		err = rows.Scan(
+			&p.CountryID,
+			&p.Place,
+			&p.Country,
+			&p.Correct,
+		)
+
+		if err != nil {
+			return nil, err
+		}
 
 		picks = append(picks, p)
 	}
 
-	a.render(w, "user_predictions.html", map[string]any{
-		"Username": username,
-		"Picks":    picks,
-		"Title":    username + "'s predictions",
-		"Year":     time.Now().Year(),
-	})
+	return picks, nil
 }
 
 func (a *App) predictionNew(w http.ResponseWriter, r *http.Request) {

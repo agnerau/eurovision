@@ -20,7 +20,7 @@
 
   <div class="prediction-list">
     {{range .Picks}}
-    <div class="prediction-row">
+    <div class="prediction-row {{if and $.PredictionsLocked .Correct}}correct-prediction{{end}}">
       <span>#{{.Place}}</span>
       <span>{{.Country}}</span>
     </div>
