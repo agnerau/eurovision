@@ -93,7 +93,7 @@ func main() {
 	mux.HandleFunc("/admin/winner", app.adminWinner)
 
 	port := getenv("PORT", "8080")
-	addr := "127.0.0.1:" + port
+	addr := "0.0.0.0:" + port
 
 	log.Println("listening on", addr)
 	log.Fatal(http.ListenAndServe(addr, mux))

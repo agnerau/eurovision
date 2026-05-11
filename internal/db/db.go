@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 
@@ -16,19 +15,10 @@ func InitDB() *sql.DB {
 		log.Println("No .env file found, using system env")
 	}
 
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	user := os.Getenv("DB_USER")
-	pass := os.Getenv("DB_PASSWORD")
-	name := os.Getenv("DB_NAME")
-	sslmode := os.Getenv("DB_SSLMODE")
+	databaseUrl := os.Getenv("DATABASE_URL")
 
-	dsn := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		host, port, user, pass, name, sslmode,
-	)
+	db, err := sql.Open("pgx", databaseUrl)
 
-	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		log.Fatal(err)
 	}
