@@ -351,6 +351,7 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 		"PredictionUsers":   predictionUsers,
 		"HasPrediction":     hasPrediction,
 		"PredictionsLocked": locked,
+		"Year":              time.Now().Year(),
 	})
 }
 
@@ -387,6 +388,7 @@ func (a *App) userPredictions(w http.ResponseWriter, r *http.Request) {
 		"Username": username,
 		"Picks":    picks,
 		"Title":    username + "'s predictions",
+		"Year":     time.Now().Year(),
 	})
 }
 
@@ -394,6 +396,7 @@ func (a *App) predictionNew(w http.ResponseWriter, r *http.Request) {
 	a.render(w, "prediction.html", map[string]any{
 		"Edit":  false,
 		"Title": "Create prediction",
+		"Year":  time.Now().Year(),
 	})
 }
 
@@ -401,6 +404,7 @@ func (a *App) predictionEdit(w http.ResponseWriter, r *http.Request) {
 	a.render(w, "prediction.html", map[string]any{
 		"Edit":  true,
 		"Title": "Edit prediction",
+		"Year":  time.Now().Year(),
 	})
 }
 

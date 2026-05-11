@@ -6,15 +6,16 @@
   <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
+
 <header class="topbar">
-  <h1>Eurovision Predictions</h1>
+  <h1>✨ Eurovision {{.Year}} Predictions</h1>
   <nav>
     {{if not .PredictionsLocked}}
-      {{if .HasPrediction}}
-      <a href="/prediction/edit">Edit prediction</a>
-      {{else}}
-      <a class="plus" href="/prediction/new">＋ New prediction</a>
-      {{end}}
+    {{if .HasPrediction}}
+    <a href="/prediction/edit">Edit prediction</a>
+    {{else}}
+    <a class="plus" href="/prediction/new">＋ New prediction</a>
+    {{end}}
     {{end}}
 
     <a href="/logout">Logout</a>
@@ -26,7 +27,7 @@
 
   <section class="panel">
     <h2>Leaderboard</h2>
-    <p class="muted">By the most correctly guessed places</p>
+    <p class="muted">Most accurate predictions</p>
 
     <table>
       <thead>
@@ -44,16 +45,14 @@
         <td>{{$row.Score}}</td>
       </tr>
       {{else}}
-      <tr>
-        <td colspan="3">No users yet.</td>
-      </tr>
+      <tr><td colspan="3">No users yet.</td></tr>
       {{end}}
       </tbody>
     </table>
   </section>
 
   <section class="panel">
-    <h2>Other's predictions</h2>
+    <h2>Other predictions</h2>
 
     <div class="prediction-cards">
       {{range .PredictionUsers}}
@@ -66,5 +65,6 @@
     </div>
   </section>
 </main>
+
 </body>
 </html>
