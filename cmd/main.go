@@ -261,6 +261,7 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 	`, userID).Scan(&hasPrediction)
 
 	if err != nil {
+		println(err.Error())
 		http.Error(w, "database error", http.StatusInternalServerError)
 		return
 	}
@@ -268,6 +269,7 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 	locked, err := a.getLocked()
 
 	if err != nil {
+		println(err.Error())
 		http.Error(w, "settings error", http.StatusInternalServerError)
 		return
 	}
@@ -289,6 +291,7 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 		ORDER BY score DESC, u.username ASC
 	`)
 	if err != nil {
+		println(err.Error())
 		http.Error(w, "leaderboard error", http.StatusInternalServerError)
 		return
 	}
@@ -326,6 +329,7 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 	`, userID)
 
 	if err != nil {
+		println(err.Error())
 		http.Error(w, "database error", http.StatusInternalServerError)
 		return
 	}
