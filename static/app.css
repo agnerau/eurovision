@@ -262,14 +262,6 @@ th, td {
     background: rgba(255, 209, 102, 0.1);
 }
 
-.country, .slot {
-    user-select: none;
-}
-
-.dragging {
-    opacity: 0.5;
-}
-
 /* CARDS */
 .prediction-cards {
     display: grid;

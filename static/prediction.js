@@ -4,6 +4,7 @@ const submitBtn = document.getElementById("submitBtn");
 const messageEl = document.getElementById("message");
 
 let countries = [];
+let draggedId = null;
 
 init();
 
@@ -13,34 +14,56 @@ async function init() {
   renderCountries(countries);
   renderSlots(countries.length);
 
-  initSortable();
-
   if (window.EDIT_MODE) {
     const stats = await fetchJSON("/api/my-stats");
     prefill(stats.picks || []);
   }
 }
 
-/* -------------------- FETCH -------------------- */
-
 async function fetchJSON(url) {
   const res = await fetch(url);
-  if (!res.ok) throw new Error(await res.text());
+  if (!res.ok) {
+    throw new Error(await res.text());
+  }
   return res.json();
 }
-
-/* -------------------- RENDER -------------------- */
 
 function renderCountries(items) {
   countriesEl.innerHTML = "";
 
-  items.forEach(c => {
-    const el = document.createElement("div");
-    el.className = "country";
-    el.dataset.id = c.id;
-    el.textContent = c.name;
-    countriesEl.appendChild(el);
+  items.forEach(country => {
+    countriesEl.appendChild(createCountryEl(country));
   });
+}
+
+function createCountryEl(country) {
+  const el = document.createElement("div");
+  el.className = "country";
+  el.draggable = true;
+  el.dataset.id = country.id;
+  el.textContent = country.name;
+
+  el.addEventListener("dragstart", () => {
+    draggedId = country.id;
+  });
+
+  el.addEventListener("click", () => {
+    const parentSlot = el.closest(".slot");
+
+    if (parentSlot) {
+      countriesEl.appendChild(el);
+      return;
+    }
+
+    const emptySlot = [...document.querySelectorAll(".slot")]
+      .find(slot => !slot.querySelector(".country"));
+
+    if (emptySlot) {
+      emptySlot.appendChild(el);
+    }
+  });
+
+  return el;
 }
 
 function renderSlots(count) {
@@ -56,53 +79,64 @@ function renderSlots(count) {
     label.textContent = `#${i}`;
 
     slot.appendChild(label);
+
+    slot.addEventListener("dragover", e => {
+      e.preventDefault();
+      slot.classList.add("over");
+    });
+
+    slot.addEventListener("dragleave", () => {
+      slot.classList.remove("over");
+    });
+
+    slot.addEventListener("drop", e => {
+      e.preventDefault();
+      slot.classList.remove("over");
+
+      if (!draggedId) return;
+
+      const draggedEl = document.querySelector(`.country[data-id="${draggedId}"]`);
+      if (!draggedEl) return;
+
+      const existing = slot.querySelector(".country");
+      if (existing) {
+        countriesEl.appendChild(existing);
+      }
+
+      slot.appendChild(draggedEl);
+      draggedId = null;
+    });
+
     slotsEl.appendChild(slot);
   }
 }
 
-/* -------------------- SORTABLE -------------------- */
-
-function initSortable() {
-  // Countries pool (source)
-  new Sortable(countriesEl, {
-    group: "countries",
-    animation: 150,
-    ghostClass: "dragging"
-  });
-
-  // Slots (target ranking)
-  new Sortable(slotsEl, {
-    group: "countries",
-    animation: 150,
-    swapThreshold: 0.65
-  });
-}
-
-/* -------------------- PREFILL -------------------- */
-
 function prefill(picks) {
   picks.forEach(pick => {
-    const countryEl = countriesEl.querySelector(`[data-id="${pick.country_id}"]`);
-    const slot = slotsEl.children[pick.place - 1];
+    const countryEl = document.querySelector(`.country[data-id="${pick.country_id}"]`);
+    const slot = document.querySelector(`.slot[data-place="${pick.place}"]`);
 
     if (countryEl && slot) {
+      const existing = slot.querySelector(".country");
+      if (existing) {
+        countriesEl.appendChild(existing);
+      }
+
       slot.appendChild(countryEl);
     }
   });
 }
 
-/* -------------------- SUBMIT -------------------- */
-
 submitBtn.addEventListener("click", async () => {
   const picks = [];
 
-  [...slotsEl.children].forEach((slot, index) => {
-    const country = slot.querySelector(".country");
+  document.querySelectorAll(".slot").forEach(slot => {
+    const countryEl = slot.querySelector(".country");
 
-    if (country) {
+    if (countryEl) {
       picks.push({
-        country_id: Number(country.dataset.id),
-        place: index + 1
+        country_id: Number(countryEl.dataset.id),
+        place: Number(slot.dataset.place)
       });
     }
   });
@@ -116,14 +150,13 @@ submitBtn.addEventListener("click", async () => {
   });
 
   if (!res.ok) {
-    messageEl.textContent = await res.text();
     messageEl.className = "error";
+    messageEl.textContent = await res.text();
     return;
   }
 
-  messageEl.textContent = "Prediction saved!";
   messageEl.className = "success";
-
+  messageEl.textContent = "Prediction saved!";
   setTimeout(() => {
     window.location.href = "/home";
   }, 1000);
