@@ -242,37 +242,24 @@ th, td {
     box-shadow: 0 0 10px rgba(67, 97, 238, 0.4);
 }
 
-/*.slot {*/
-/*    min-height: 44px;*/
-
-/*    border-radius: 12px;*/
-/*    border: 2px dashed rgba(255,255,255,0.25);*/
-
-/*    padding: 8px;*/
-
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    gap: 10px;*/
-
-/*    background: rgba(255,255,255,0.05);*/
-/*}*/
-
-/*.slot.over {*/
-/*    border-color: #ffd166;*/
-/*    background: rgba(255, 209, 102, 0.1);*/
-/*}*/
-
 .slot {
-    position: relative;
+    min-height: 44px;
+
+    border-radius: 12px;
+    border: 2px dashed rgba(255,255,255,0.25);
+
+    padding: 8px;
+
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    gap: 10px;
 
-    min-height: 44px;
+    background: rgba(255,255,255,0.05);
 }
 
-.slot > .country {
-    width: 100%;
+.slot.over {
+    border-color: #ffd166;
+    background: rgba(255, 209, 102, 0.1);
 }
 
 .country, .slot {
@@ -281,19 +268,6 @@ th, td {
 
 .dragging {
     opacity: 0.5;
-}
-.sortable-ghost {
-    opacity: 0.5;
-}
-
-.sortable-chosen {
-    transform: scale(1.05);
-}
-
-.sortable-drag {
-    position: fixed !important;
-    z-index: 9999;
-    pointer-events: none;
 }
 
 /* CARDS */

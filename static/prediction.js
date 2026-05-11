@@ -67,26 +67,14 @@ function initSortable() {
   new Sortable(countriesEl, {
     group: "countries",
     animation: 150,
-
-    forceFallback: true,
-    fallbackTolerance: 3,
-    fallbackOnBody: true,
-
     ghostClass: "dragging"
   });
 
+  // Slots (target ranking)
   new Sortable(slotsEl, {
     group: "countries",
     animation: 150,
-    forceFallback: true,
-    fallbackTolerance: 3,
-    fallbackOnBody: true,
-
-    onMove: function (evt) {
-      // prevent inserting outside slot boundaries
-      return evt.related.classList.contains("slot") ||
-          evt.to.classList.contains("slots");
-    }
+    swapThreshold: 0.65
   });
 }
 
