@@ -67,23 +67,26 @@ function initSortable() {
   new Sortable(countriesEl, {
     group: "countries",
     animation: 150,
+
     forceFallback: true,
     fallbackTolerance: 3,
     fallbackOnBody: true,
+
     ghostClass: "dragging"
   });
 
-  // EACH SLOT becomes its own drop zone
-  document.querySelectorAll(".slot").forEach(slot => {
-    new Sortable(slot, {
-      group: "countries",
-      animation: 150,
-      sort: false,
+  new Sortable(slotsEl, {
+    group: "countries",
+    animation: 150,
+    forceFallback: true,
+    fallbackTolerance: 3,
+    fallbackOnBody: true,
 
-      forceFallback: true,
-      fallbackTolerance: 3,
-      fallbackOnBody: true
-    });
+    onMove: function (evt) {
+      // prevent inserting outside slot boundaries
+      return evt.related.classList.contains("slot") ||
+          evt.to.classList.contains("slots");
+    }
   });
 }
 
