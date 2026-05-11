@@ -470,7 +470,7 @@ func (a *App) apiCountries(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := a.db.Query(`SELECT id, name FROM countries ORDER BY name ASC`)
+	rows, err := a.db.Query(`SELECT id, name FROM countries`)
 	if err != nil {
 		http.Error(w, "countries error", http.StatusInternalServerError)
 		return
