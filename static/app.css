@@ -160,6 +160,10 @@ button:hover,
     border: 1px solid rgba(255,255,255,0.08);
 }
 
+.centered-predictions{
+    margin: 20px;
+}
+
 /* TABLE */
 table {
     width: 100%;
@@ -182,11 +186,32 @@ th, td {
 }
 
 /* mobile fallback */
+
 @media (max-width: 900px) {
+
     .prediction-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+        gap: 10px;
+    }
+
+    .submit-area {
+        margin-top: 24px;
+    }
+
+    .country-list,
+    .slots {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .country,
+    .slot {
+        font-size: 13px;
+        padding: 8px;
     }
 }
+
 
 .country-list,
 .slots {
@@ -286,6 +311,7 @@ th, td {
     color: #ffffff;
     box-shadow: 0 0 18px rgba(123, 44, 255, 0.25);
 }
+
 
 /* MOBILE TUNING */
 @media (max-width: 600px) {
