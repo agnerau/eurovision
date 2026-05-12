@@ -51,3 +51,8 @@ CREATE TABLE IF NOT EXISTS app_settings (
                                             id BOOLEAN PRIMARY KEY DEFAULT TRUE,
                                             predictions_locked BOOLEAN NOT NULL DEFAULT FALSE
 );
+
+CREATE TABLE IF NOT EXISTS eurovision_part (
+                                            id BOOLEAN PRIMARY KEY DEFAULT TRUE,
+                                            part INT NOT NULL
+);

@@ -89,6 +89,7 @@ func main() {
 	mux.HandleFunc("/api/my-stats", app.requireAuth(app.apiMyStats))
 
 	mux.HandleFunc("/admin/countries", app.adminCountries)
+	mux.HandleFunc("/admin/part", app.adminPart)
 	mux.HandleFunc("/admin/lock", app.adminLock)
 	mux.HandleFunc("/admin/winner", app.adminWinner)
 
@@ -183,7 +184,6 @@ func (a *App) register(w http.ResponseWriter, r *http.Request) {
 		).Scan(&id)
 
 		if err != nil {
-			println(err.Error())
 			a.render(w, "register.html", map[string]any{
 				"Error": "Username already exists.",
 			})
@@ -261,7 +261,6 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 	`, userID).Scan(&hasPrediction)
 
 	if err != nil {
-		println(err.Error())
 		http.Error(w, "database error", http.StatusInternalServerError)
 		return
 	}
@@ -269,7 +268,6 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 	locked, err := a.getLocked()
 
 	if err != nil {
-		println(err.Error())
 		http.Error(w, "settings error", http.StatusInternalServerError)
 		return
 	}
@@ -280,18 +278,39 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 	leaderRows, err := a.db.Query(`
 		SELECT 
 			u.username,
-			COALESCE(COUNT(w.id), 0) AS score
+	
+			COALESCE(SUM(
+				CASE
+					WHEN ep.part IN (1, 2)
+						AND s.place <= 10
+						AND EXISTS (
+							SELECT 1
+							FROM winner_countries w
+							WHERE w.country_id = s.country_id
+						)
+					THEN 1
+	
+					WHEN ep.part = 3
+						AND EXISTS (
+							SELECT 1
+							FROM winner_countries w
+							WHERE w.country_id = s.country_id
+							AND w.place = s.place
+						)
+					THEN 1
+	
+					ELSE 0
+				END
+			), 0) AS score
+	
 		FROM users u
 		LEFT JOIN stats s ON s.user_id = u.id
-		LEFT JOIN countries c ON c.id = s.country_id
-		LEFT JOIN winner_countries w 
-			ON w.country_id = c.id
-			AND w.place = s.place
+		CROSS JOIN eurovision_part ep
+	
 		GROUP BY u.id, u.username
 		ORDER BY score DESC, u.username ASC
 	`)
 	if err != nil {
-		println(err.Error())
 		http.Error(w, "leaderboard error", http.StatusInternalServerError)
 		return
 	}
@@ -329,7 +348,6 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 	`, userID)
 
 	if err != nil {
-		println(err.Error())
 		http.Error(w, "database error", http.StatusInternalServerError)
 		return
 	}
@@ -353,6 +371,7 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 		"Year":              time.Now().Year(),
 	})
 }
+
 func (a *App) getLocked() (bool, error) {
 	var locked bool
 
@@ -383,14 +402,6 @@ func (a *App) userPredictions(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "database error", http.StatusInternalServerError)
 		return
 	}
-	for _, pick := range picks {
-		println(pick.Country)
-		println(pick.CountryID)
-		println(pick.Place)
-		println(pick.Correct)
-	}
-
-	println(locked)
 
 	a.render(w, "user_predictions.html", map[string]any{
 		"Username":          username,
@@ -407,14 +418,33 @@ func (a *App) getUserPredictions(username string) ([]PickRow, error) {
 			c.id,
 			s.place,
 			c.name,
-			(w.country_id IS NOT NULL) AS correct
+
+			CASE
+				WHEN ep.part IN (1, 2)
+					THEN (
+						s.place <= 10
+						AND EXISTS (
+							SELECT 1
+							FROM winner_countries w
+							WHERE w.country_id = s.country_id
+						)
+					)
+
+				WHEN ep.part = 3
+					THEN EXISTS (
+						SELECT 1
+						FROM winner_countries w
+						WHERE w.country_id = s.country_id
+						AND w.place = s.place
+					)
+
+				ELSE FALSE
+			END AS correct
+
 		FROM stats s
 		JOIN users u ON u.id = s.user_id
 		JOIN countries c ON c.id = s.country_id
-
-		LEFT JOIN winner_countries w
-			ON w.country_id = s.country_id
-			AND w.place = s.place
+		CROSS JOIN eurovision_part ep
 
 		WHERE u.username = $1
 		ORDER BY s.place ASC
@@ -677,6 +707,37 @@ func (a *App) adminCountries(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]any{
 		"ok":       true,
 		"inserted": inserted,
+	})
+}
+
+func (a *App) adminPart(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var payload struct {
+		Part int `json:"part"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		http.Error(w, "invalid json", http.StatusBadRequest)
+		return
+	}
+
+	_, err := a.db.Exec(`
+		UPDATE eurovision_part
+		SET part = $1
+		WHERE id = TRUE
+	`, payload.Part)
+
+	if err != nil {
+		http.Error(w, "database error", http.StatusInternalServerError)
+		return
+	}
+
+	writeJSON(w, map[string]any{
+		"part": payload.Part,
 	})
 }
 
