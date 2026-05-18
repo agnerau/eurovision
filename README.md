@@ -28,6 +28,10 @@ and based on part results are calculated differently:
     - if it is a semi-final - all countries in top 10 if qualified are marked as correct
     - if it is a final - country and place must match
 
+after results are out, user can see their personal and friends results as table, and correct guesses are highlighted
+
+leaderboard is sorted based on correct guesses count
+
 Tables:
 
 USERS
