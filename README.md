@@ -1,4 +1,4 @@
-** Eurovision predictions! **
+## Eurovision predictions!
 
 users can connect and create account with username and password
 
@@ -31,28 +31,28 @@ and based on part results are calculated differently:
 Tables:
 
 USERS
-id
-username
+- id int
+- username string
 
 COUNTRIES
-id
-name
+- id int
+- name string
 
 STATS
-id
-country
-place
-user_id
+- id int
+- country_id int
+- place int
+- user_id int
 
 WINNER_COUNTRIES
-id
-name
-place
+- id int
+- country_id int
+- place int
 
 APP_SETTINGS
-id bool
-predictions_locked bool
+- id bool
+- predictions_locked bool
 
 EUROVISION_PART
-id bool
-part int
+- id bool
+- part int
